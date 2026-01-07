@@ -18,32 +18,43 @@
 
 // struct for file input
 typedef struct {
-    const char** items;
+    char** items;
     size_t count;
     size_t capacity;
 } Lines;
 
 // place file input into array
-void file_to_da(const char* path, Lines* xs) {
-    FILE* f = fopen(path, "r");
-    char buffer[256];
-    while (fgets(buffer, sizeof(buffer), f) != NULL) {
-        buffer[strlen(buffer) - 1] = '\0';
-        char* item = malloc(sizeof(buffer));
-        strcpy(item, buffer);
-        if (xs->count >= xs->capacity) {
-            if (xs->capacity == 0) xs->capacity = 4;
-            xs->capacity *= 2;
-            xs->items = realloc(xs->items, xs->capacity*sizeof(*xs->items));
-        }
-        xs->items[xs->count++] = item;
-    }
-    fclose(f);
-}
-
-// use macro to get input
-#define get_aoc_input(path)\
+#define get_aoc_input(path, delimeter)\
     Lines input = {0};\
-    file_to_da(path, &input);\
+    FILE* f = fopen(path, "r");\
+    char buffer[512];\
+    int c;\
+    int buf_idx = 0;\
+    while ((c = fgetc(f)) != EOF) {\
+        char ch = (char)c;\
+        if (ch != delimeter) {\
+            buffer[buf_idx] = ch;\
+            buf_idx++;\
+        } else {\
+            if (buf_idx == 0) continue;\
+            buffer[buf_idx] = '\0';\
+            char* item = malloc(buf_idx + 1);\
+            strcpy(item, buffer);\
+            da_append(input, item);\
+            buf_idx = 0;\
+        }\
+    }\
+    if (buf_idx > 0) {\
+        buffer[buf_idx - 1] = '\0';\
+        char* item = malloc(buf_idx + 1);\
+        strcpy(item, buffer);\
+        da_append(input, item);\
+    }\
+    fclose(f);\
+
+#define free_aoc_input()\
+    for (size_t i = 0; i < input.count; i++) {\
+        free(input.items[i]);\
+    }\
 
 #endif

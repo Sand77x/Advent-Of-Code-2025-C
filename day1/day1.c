@@ -2,7 +2,7 @@
 #include "../common.c"
 
 int main(int argc, char* argv[]) {
-    get_aoc_input("input.txt");
+    get_aoc_input("input.txt", '\n');
 
     int dial = 50;
     size_t zeroes = 0;
@@ -25,6 +25,8 @@ int main(int argc, char* argv[]) {
     }
 
     printf("Answer: %zu\n", zeroes);
+
+    free_aoc_input();
     return 0;
 }
 
